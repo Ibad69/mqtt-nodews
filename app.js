@@ -6,7 +6,8 @@ const port = "1883" // Correct port
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
 const connectUrl = `${protocol}://${host}:${port}`
 const {WebSocketServer} = require("ws")
-const wss = new WebSocketServer({port: 8083})
+require("dotenv").config()
+const wss = new WebSocketServer({port: process.env.PORT})
 const express = require('express')
 const app = express();
 const url = require("url")
