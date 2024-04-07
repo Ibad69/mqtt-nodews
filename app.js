@@ -71,6 +71,9 @@ client.on("error", (err)=>{
     console.error(err)
 })
 
+app.get("/", (req, res)=>{
+    return res.status(200).json({message:"successa"})
+})
 app.get("/event", (req, res)=>{
     const client = mqtt.connect(connectUrl, {
         clientId,
