@@ -7,10 +7,22 @@ const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
 const connectUrl = `${protocol}://${host}:${port}`
 const {WebSocketServer} = require("ws")
 require("dotenv").config()
-const wss = new WebSocketServer({port: process.env.PORT})
 const express = require('express')
 const app = express();
 const url = require("url")
+const http = require("http")
+
+const server = http.createServer((req, res) =>{
+    const reqUrl = url.parse(req.url).pathname
+    if(req.method == "GET"){
+        if(reqUrl == "/"){
+            res.write("get method hit")
+            res.end()
+        }
+    }
+})
+
+const wss = new WebSocketServer({server})
 
 const client = mqtt.connect(connectUrl, {
     clientId,
@@ -72,32 +84,34 @@ client.on("error", (err)=>{
     console.error(err)
 })
 
-app.get("/", (req, res)=>{
-    return res.status(200).json({message:"successa"})
-})
-app.get("/event", (req, res)=>{
-    const client = mqtt.connect(connectUrl, {
-        clientId,
-        clean: true,
-        connectTimeout: 4000,
-        // username: 'emqx', // Uncomment these lines if you've set up authentication
-        // password: 'public',
-        reconnectPeriod: 1000
-    })
-    // client
-    client.publish('testtopic', 'this is a new message for much better testing of qos and mqtt', { qos: 2, retain: false }, (error) => {
-        console.log('published message')
-        if (error) {
-            console.error(error)
-        }
-        else{
-            client.end()
-            return res.status(200).json({message: "success"})
-        }
-    })
-})
+server.listen(process.env.PORT)
 
-app.listen(3000, ()=>{
-    console.log('express serer running')
-})
+// app.get("/", (req, res)=>{
+//     return res.status(200).json({message:"successa"})
+// })
+// app.get("/event", (req, res)=>{
+//     const client = mqtt.connect(connectUrl, {
+//         clientId,
+//         clean: true,
+//         connectTimeout: 4000,
+//         // username: 'emqx', // Uncomment these lines if you've set up authentication
+//         // password: 'public',
+//         reconnectPeriod: 1000
+//     })
+//     // client
+//     client.publish('testtopic', 'this is a new message for much better testing of qos and mqtt', { qos: 2, retain: false }, (error) => {
+//         console.log('published message')
+//         if (error) {
+//             console.error(error)
+//         }
+//         else{
+//             client.end()
+//             return res.status(200).json({message: "success"})
+//         }
+//     })
+// })
+
+// app.listen(8083, ()=>{
+//     console.log('express serer running')
+// })
 
